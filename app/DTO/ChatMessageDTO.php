@@ -22,10 +22,7 @@ class ChatMessageDTO
         }
 
         return [
-            'content' => [
-                'message' => $message->message,
-                'error' => $message->error,
-            ],
+            'content' => $message->message,
             'role' => 'assistant',
             'created_at' => $message->created_at->toIso8601String(),
         ];

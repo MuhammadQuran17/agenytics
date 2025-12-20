@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, provide, computed, watch, nextTick, onMounted, onBeforeUnmount, type Ref } from 'vue';
+import { ref, inject, computed, watch, nextTick, type Ref } from 'vue';
 import { usePage } from "@inertiajs/vue3";
 import type { SharedData, User } from "@/types";
 import axios from 'axios';
@@ -8,6 +8,8 @@ import { useAiChatStore } from '@/store/aiChatStore';
 import { toast } from 'vue-sonner';
 import ChatMessageLoading from '@/components_project/chat/ChatMessageLoading.vue';
 import { router } from '@inertiajs/vue3';
+import { marked } from 'marked';
+import { useChatPolling } from '@/composables/useChatPolling';
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
@@ -71,135 +73,11 @@ const handleSendMessage = async (message: string) => {
 };
 // [END] Handle send message
 
-
 // [START] Polling state - session-aware
-const pollingIntervalIds = ref<Map<string, number>>(new Map());
-const pollingAttempts = ref<Map<string, number>>(new Map());
-const maxPollingAttempts = 150; // 150 * 4 seconds = 10 minutes max
-
-const stopPolling = (sessionId: string) => {
-    const intervalId = pollingIntervalIds.value.get(sessionId);
-    if (intervalId) {
-        clearInterval(intervalId);
-        pollingIntervalIds.value.delete(sessionId);
-        pollingAttempts.value.delete(sessionId);
-    }
-};
-
-const pollJobStatus = async (sessionId: string, jobId: string) => {
-    try {
-        const response = await axios.post(route('chat.status'), { 
-            jobId: String(jobId) 
-        });
-        const { status, response: aiResponse, error } = response.data;
-
-        if (status === 'completed') {
-            stopPolling(sessionId);
-            aiChatStore.stopPollingForSession(sessionId);
-
-            if (aiResponse) {
-                aiChatStore.addMessage({
-                    content: aiResponse,
-                    role: 'assistant',
-                    created_at: new Date().toISOString(),
-                });
-            }
-        } else if (status === 'failed') {
-            stopPolling(sessionId);
-            aiChatStore.stopPollingForSession(sessionId);
-            toast.error(error || 'Processing failed');
-        } else if (status === 'processing') {
-            // Continue polling
-            const attempts = (pollingAttempts.value.get(sessionId) || 0) + 1;
-            pollingAttempts.value.set(sessionId, attempts);
-
-            if (attempts >= maxPollingAttempts) {
-                stopPolling(sessionId);
-                aiChatStore.stopPollingForSession(sessionId);
-                toast.error('Processing timeout. Please try again.');
-            }
-        }
-    } catch (error: any) {
-        stopPolling(sessionId);
-        aiChatStore.stopPollingForSession(sessionId);
-        toast.error(error.response?.data?.message || 'Failed to check job status');
-    }
-};
-
-const startPolling = (sessionId: string, jobId: string) => {
-    // Stop any existing polling for this session
-    stopPolling(sessionId);
-    
-    pollingAttempts.value.set(sessionId, 0);
-    aiChatStore.startPollingForSession(sessionId, jobId);
-    
-    const intervalId = window.setInterval(() => {
-        pollJobStatus(sessionId, jobId);
-    }, 4000); // Poll every 4 seconds
-    
-    pollingIntervalIds.value.set(sessionId, intervalId);
-};
-
-const resumePollingForSession = (sessionId: string, jobId: string) => {
-    // Only resume if not already polling
-    if (!pollingIntervalIds.value.has(sessionId)) {
-        startPolling(sessionId, jobId);
-    }
-};
-
-const checkAndResumePolling = () => {
-    if (!currentChatSessionId?.value) return;
-    
-    // Load polling state from localStorage
-    aiChatStore.loadPollingStateFromStorage();
-    
-    const activeJobId = aiChatStore.getActiveJobForSession(currentChatSessionId.value);
-    
-    if (activeJobId) {
-        // Check if we already have the assistant response in chatHistory
-        const lastMessage = messages.value[messages.value.length - 1];
-        
-        if (lastMessage && lastMessage.role === 'assistant') {
-            // Job completed, clean up
-            aiChatStore.cleanupCompletedJob(currentChatSessionId.value);
-        } else {
-            // Job still processing, resume polling
-            resumePollingForSession(currentChatSessionId.value, activeJobId);
-        }
-    }
-};
-
-// On mount: check and resume polling if needed
-onMounted(() => {
-    checkAndResumePolling();
+const { startPolling } = useChatPolling({
+    currentChatSessionId,
+    messages,
 });
-
-// Watch for chat session changes (navigation between chats)
-watch(() => currentChatSessionId?.value, (newSessionId, oldSessionId) => {
-    if (!newSessionId) return;
-    
-    if (oldSessionId && newSessionId !== oldSessionId) {
-        // Stop polling interval for old session (but keep job in store)
-        stopPolling(oldSessionId);
-    }
-    
-    if (newSessionId) {
-        // Check if new session has active job and resume if needed
-        const activeJobId = aiChatStore.getActiveJobForSession(newSessionId);
-        if (activeJobId) {
-            resumePollingForSession(newSessionId, activeJobId);
-        }
-    }
-});
-
-// Clean up all polling on component unmount
-onBeforeUnmount(() => {
-    // Stop all active polling intervals
-    pollingIntervalIds.value.forEach((_, sessionId) => {
-        stopPolling(sessionId);
-    });
-}); 
-
 // [END] Polling state - session-aware
 </script>
 
@@ -216,11 +94,10 @@ onBeforeUnmount(() => {
                     <template v-for="(message, index) in messages" :key="index">
                         <div 
                             v-if="message.role === 'assistant'" 
-                            class="mb-16 max-w-[90%]"
+                            class="mb-16 max-w-[90%] markdown-content"
                             :ref="(el: any) => { if (el) messageRefs[index] = el as HTMLElement }"
-                        >
-                            {{ message.content }}
-                        </div>
+                            v-html="message.content && marked.parse(message.content as string)"
+                        ></div>
                         <div 
                             v-else 
                             class="w-full"
@@ -248,5 +125,100 @@ onBeforeUnmount(() => {
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
+}
+
+.markdown-content {
+  color: var(--foreground);
+  line-height: 1.75;
+}
+
+.markdown-content :deep(h1),
+.markdown-content :deep(h2),
+.markdown-content :deep(h3),
+.markdown-content :deep(h4),
+.markdown-content :deep(h5),
+.markdown-content :deep(h6) {
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.25;
+}
+
+.markdown-content :deep(h1) {
+  font-size: 2em;
+}
+
+.markdown-content :deep(h2) {
+  font-size: 1.5em;
+}
+
+.markdown-content :deep(h3) {
+  font-size: 1.25em;
+}
+
+.markdown-content :deep(p) {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.markdown-content :deep(ul),
+.markdown-content :deep(ol) {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding-left: 2em;
+}
+
+.markdown-content :deep(li) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content :deep(strong) {
+  font-weight: 600;
+}
+
+.markdown-content :deep(em) {
+  font-style: italic;
+}
+
+.markdown-content :deep(code) {
+  background-color: var(--muted);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+.markdown-content :deep(pre) {
+  background-color: var(--muted);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.markdown-content :deep(pre code) {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdown-content :deep(blockquote) {
+  border-left: 4px solid var(--border);
+  padding-left: 1em;
+  margin-left: 0;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.markdown-content :deep(a) {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.markdown-content :deep(a:hover) {
+  color: var(--primary-foreground);
 }
 </style>
