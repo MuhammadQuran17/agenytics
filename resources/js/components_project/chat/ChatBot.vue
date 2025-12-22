@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, computed, watch, nextTick, type Ref } from 'vue';
+import { ref, inject, computed, watch, nextTick, type Ref, onMounted } from 'vue';
 import { usePage } from "@inertiajs/vue3";
 import type { SharedData, User } from "@/types";
 import axios from 'axios';
@@ -30,11 +30,16 @@ const scrollToMessage = (index: number) => {
     });
 };
 
-watch(messages, (newMessages) => {
-    if (newMessages.length > 0) {
-        scrollToMessage(newMessages.length - 1);
+const scrollToLastMessage = () => {
+    if (messages.value.length > 0) {
+        scrollToMessage(messages.value.length - 1);
     }
-}, { deep: true });
+};
+
+watch(messages, scrollToLastMessage, { deep: true });
+
+onMounted(scrollToLastMessage);
+
 // [END] Scroll to message
 
 

@@ -9,8 +9,6 @@ import { useAiChatStore } from '@/store/aiChatStore';
 const props = defineProps<{
     currentChatSessionId: string;
     chatHistory: any[];
-    userDbSchemas: any[];
-    currentChatDatabaseType: string;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
