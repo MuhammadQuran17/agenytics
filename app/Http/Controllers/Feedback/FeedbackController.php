@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Feedback;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\FeedbackAdminMiddleware;
 use App\Models\Feedback;
 use App\Models\FeedbackVote;
 use App\Models\User;
-use App\Http\Middleware\FeedbackAdminMiddleware;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -238,5 +239,22 @@ class FeedbackController extends Controller
         ]);
 
         return back()->with('success', 'Comment added!');
+    }
+
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'upload' => 'required|image|mimes:png,jpg,jpeg|max:2048',
+        ]);
+
+        try {
+            $image = $request->file('upload');
+            $path = $image->store('feedback_images', 'public');
+            $url = Storage::url($path);
+
+            return response()->json(['url' => $url]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

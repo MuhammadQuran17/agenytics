@@ -15,11 +15,11 @@ import DialogContent from '@/components/ui/dialog/DialogContent.vue'
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue'
 import DialogTitle from '@/components/ui/dialog/DialogTitle.vue'
 import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue'
-import Textarea from '@/components/ui/textarea/Textarea.vue'
 import Label from '@/components/ui/label/Label.vue'
 import { TagSelector } from '@/components/ui/tag-selector'
 import { Alert } from '@/components/ui/alert'
 import FeedbackBoard from '@/components_project/feedback/FeedbackBoard.vue'
+import Ckeditor from '@/components/ui/ckeditor/Ckeditor.vue'
 import { createFeedback as apiCreateFeedback, filterFeedbacks as apiFilterFeedbacks } from '@/api_requests/feedback/feedback'
 import { FEEDBACK_STATUSES } from '@/config/feedbackStatuses'
 
@@ -106,6 +106,7 @@ const createForm = ref({
   tags: [] as string[],
 })
 const tagInput = ref('')
+const editorInstance = ref<any>(null)
 
 const defaultTags = ['feature', 'bug', 'question']
 
@@ -115,6 +116,11 @@ const handleNewFeedbackClick = () => {
   } else {
     showCreateDialog.value = true
   }
+}
+
+const handleEditorReady = (editor: any) => {
+  editorInstance.value = editor
+  editor.setData('')
 }
 
 const addDefaultTag = (tag: string) => {
@@ -136,12 +142,27 @@ const removeTag = (tag: string) => {
 }
 
 const createFeedback = () => {
+  if (!editorInstance.value) return
+
   isCreating.value = true
 
-  apiCreateFeedback(createForm.value, () => {
+  const content = editorInstance.value.getData()
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(content, 'text/html')
+  const htmlContent = doc.body.innerHTML.trim()
+
+  const formData = {
+    ...createForm.value,
+    description: htmlContent,
+  }
+
+  apiCreateFeedback(formData, () => {
     showCreateDialog.value = false
     createForm.value = { title: '', description: '', tags: [] }
     tagInput.value = ''
+    if (editorInstance.value) {
+      editorInstance.value.setData('')
+    }
   }, () => {
     isCreating.value = false
   })
@@ -208,14 +229,13 @@ const isCreating = ref(false)
 
               <div>
                 <Label class="mb-3 text-sm font-medium" for="description">Description</Label>
-                <Textarea
-                  id="description"
-                  v-model="createForm.description"
-                  placeholder="Detailed description of your feedback"
-                  rows="6"
-                  class="min-h-[120px] resize-none"
-                  required
-                />
+                <div class="border rounded-md overflow-hidden">
+                  <Ckeditor
+                    ref="editor"
+                    :enable-title="false"
+                    @editor-ready="handleEditorReady"
+                  />
+                </div>
               </div>
 
               <div>

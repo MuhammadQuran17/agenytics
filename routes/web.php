@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/{feedback}', [FeedbackController::class, 'updateOrInsertNewFeedback'])->name('update');
         Route::post('/{feedback}/vote', [FeedbackController::class, 'vote'])->name('vote');
         Route::post('/{feedback}/comment', [FeedbackCommentController::class, 'saveComment'])->name('comment.save');
+        Route::post('/upload-image', [FeedbackController::class, 'uploadImage'])->name('upload-image');
 
         // Admin only routes
         Route::middleware('feedback.admin')->group(function () {

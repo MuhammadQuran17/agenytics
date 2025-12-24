@@ -7,11 +7,11 @@ import Button from '@/components/ui/button/Button.vue'
 import Card from '@/components/ui/card/Card.vue'
 import CardContent from '@/components/ui/card/CardContent.vue'
 import Input from '@/components/ui/input/Input.vue'
-import Textarea from '@/components/ui/textarea/Textarea.vue'
 import { Select } from '@/components/ui/select'
 import Label from '@/components/ui/label/Label.vue'
 import { Alert } from '@/components/ui/alert'
 import { TagSelector } from '@/components/ui/tag-selector'
+import Ckeditor from '@/components/ui/ckeditor/Ckeditor.vue'
 import { toast } from 'vue-sonner'
 import { updateFeedbackApi } from '@/api_requests/feedback/feedback'
 
@@ -51,6 +51,7 @@ const form = reactive({
 
 const isSubmitting = ref(false)
 const error = ref<string | null>(null)
+const editorInstance = ref<any>(null)
 
 const statusOptions = [
   { value: 'planned', label: 'Planned' },
@@ -59,10 +60,22 @@ const statusOptions = [
   { value: 'closed', label: 'Closed' },
 ]
 
+const handleEditorReady = (editor: any) => {
+  editorInstance.value = editor
+  editor.setData(props.feedback.description || '')
+}
+
 const handleSubmit = async () => {
   if (!props.canEdit) return
 
-  if (!form.title.trim() || !form.description.trim()) {
+  if (!editorInstance.value) return
+
+  const content = editorInstance.value.getData()
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(content, 'text/html')
+  const htmlContent = doc.body.innerHTML.trim()
+
+  if (!form.title.trim() || !htmlContent) {
     error.value = 'Title and description are required'
     return
   }
@@ -71,7 +84,11 @@ const handleSubmit = async () => {
   error.value = null
 
   try {
-    const data = await updateFeedbackApi(props.feedback.id, form)
+    const formData = {
+      ...form,
+      description: htmlContent,
+    }
+    const data = await updateFeedbackApi(props.feedback.id, formData)
     if (data.message) {
       toast.success(data.message)
       router.visit(route('feedback.list'))
@@ -132,14 +149,13 @@ const handleCancel = () => {
               <!-- Description Field -->
               <div>
                 <Label for="description" class="mb-2">Description</Label>
-                <Textarea
-                  id="description"
-                  v-model="form.description"
-                  placeholder="Describe your feedback in detail"
-                  class="min-h-32"
-                  :disabled="!canEdit || isSubmitting"
-                  required
-                />
+                <div class="border rounded-md overflow-hidden" :class="{ 'opacity-50 pointer-events-none': !canEdit || isSubmitting }">
+                  <Ckeditor
+                    ref="editor"
+                    :enable-title="false"
+                    @editor-ready="handleEditorReady"
+                  />
+                </div>
               </div>
 
               <!-- Status Field -->
