@@ -49,7 +49,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
             />
 
             <!-- Send Message Button -->
-            <div class="absolute bottom-2 left-3 right-3 flex items-center justify-between px-2">
+            <div class="absolute bottom-2 right-1 px-2">
                 <Button @click="sendMessage" :disabled="!newMessage" class="rounded-[50%] p-1 cursor-pointer">
                     <ArrowUp class="h-5 w-5"/>
                 </Button>

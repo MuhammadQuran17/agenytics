@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, computed, watch, nextTick, type Ref, onMounted } from 'vue';
+import { ref, inject, computed, type Ref } from 'vue';
 import { usePage } from "@inertiajs/vue3";
 import type { SharedData, User } from "@/types";
 import axios from 'axios';
@@ -10,6 +10,7 @@ import ChatMessageLoading from '@/components_project/chat/ChatMessageLoading.vue
 import { router } from '@inertiajs/vue3';
 import { marked } from 'marked';
 import { useChatPolling } from '@/composables/useChatPolling';
+import { useScrollToMessage } from '@/composables/useScrollToMessage';
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
@@ -24,24 +25,8 @@ const hasActiveChatHistory = computed(() => aiChatStore.hasActiveChatHistory);
 const isLoading = computed(() => currentChatSessionId?.value ? aiChatStore.isSessionProcessing(currentChatSessionId.value) : false);
 
 // [START] Scroll to message
-const scrollToMessage = (index: number) => {
-    nextTick(() => {
-        messageRefs.value[index]?.scrollIntoView({ behavior: 'smooth' });
-    });
-};
-
-const scrollToLastMessage = () => {
-    if (messages.value.length > 0) {
-        scrollToMessage(messages.value.length - 1);
-    }
-};
-
-watch(messages, scrollToLastMessage, { deep: true });
-
-onMounted(scrollToLastMessage);
-
+useScrollToMessage(messageRefs)
 // [END] Scroll to message
-
 
 // [START] Handle send message
 const handleSendMessage = async (message: string) => {

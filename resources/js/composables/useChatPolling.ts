@@ -136,7 +136,7 @@ export function useChatPolling({ currentChatSessionId, messages }: UseChatPollin
         pollingIntervalIds.value.forEach((_, sessionId) => {
             stopPolling(sessionId);
         });
-    });
+    }); 
 
     return {
         startPolling,
