@@ -242,7 +242,7 @@ describe('FeedBackController', function () {
 
     describe('updateStatus method', function () {
         it('allows admin user to update feedback status', function () {
-            $adminUser = User::factory()->create(['email' => 'admin@example.com']);
+            $adminUser = User::factory()->create(['email' => explode(',', config('feedback.admin_emails'))[0]]);
             $feedback = Feedback::factory()->create(['status' => 'planned']);
 
             $this->actingAs($adminUser);
@@ -272,7 +272,7 @@ describe('FeedBackController', function () {
         });
 
         it('validates status field', function () {
-            $adminUser = User::factory()->create(['email' => 'admin@example.com']);
+            $adminUser = User::factory()->create(['email' => explode(',', config('feedback.admin_emails'))[0]]);
             $feedback = Feedback::factory()->create(['status' => 'planned']);
 
             $this->actingAs($adminUser);
@@ -288,7 +288,7 @@ describe('FeedBackController', function () {
 
     describe('show method', function () {
         it('passes canManageFeedback true for admin users', function () {
-            $adminUser = User::factory()->create(['email' => 'admin@example.com']);
+            $adminUser = User::factory()->create(['email' => explode(',', config('feedback.admin_emails'))[0]]);
             $feedback = Feedback::factory()->create();
 
             $this->actingAs($adminUser);

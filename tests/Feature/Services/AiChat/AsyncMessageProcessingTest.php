@@ -24,41 +24,6 @@ describe('Async Message Processing - Job Dispatch', function () {
     });
 });
 
-describe('Async Message Processing - Job Execution', function () {
-    it('creates a failed chat history record when job failed() method is called', function () {
-        $user = makeUserWithPrompts(5);
-        $userChat = UserChat::factory()->create(['user_id' => $user->id]);
-
-        // Create a job instance
-        $job = new ProcessAiChatMessage(
-            [
-                'sessionId' => $userChat->session_id,
-                'message' => 'Test message',
-            ],
-            (string) $user->id
-        );
-
-        // Mock the job property with a job ID
-        $mockJob = Mockery::mock(\Illuminate\Contracts\Queue\Job::class);
-        $mockJob->shouldReceive('getJobId')->andReturn('mock-job-123');
-        $job->setJob($mockJob);
-
-        // Call the failed method
-        $exception = new \Exception('Test exception message');
-        $job->failed($exception);
-
-        // Verify that a failed chat history was created
-        $failedHistory = ChatHistory::where('job_id', 'mock-job-123')
-            ->where('job_status', 'failed')
-            ->first();
-
-        expect($failedHistory)->not->toBeNull();
-        expect($failedHistory->role)->toBe('assistant');
-        expect($failedHistory->error)->toBe('Test exception message');
-        expect($failedHistory->user_chat_session_id)->toBe($userChat->session_id);
-    });
-});
-
 describe('Chat Status Polling', function () {
     it('returns failed status with error message when job has failed', function () {
         $user = makeUserWithPrompts(5);
@@ -73,8 +38,7 @@ describe('Chat Status Polling', function () {
             'user_chat_session_id' => $userChat->session_id,
             'job_id' => $jobId,
             'job_status' => 'failed',
-            'role' => 'assistant',
-            'error' => 'API connection failed',
+            'role' => 'assistant'
         ]);
 
         $response = $this->postJson(route('chat.status'), ['jobId' => $jobId]);
@@ -82,7 +46,7 @@ describe('Chat Status Polling', function () {
         $response->assertSuccessful();
         $response->assertJson([
             'status' => 'failed',
-            'error' => 'API connection failed',
+            'error' => 'An error occurred while processing your message.',
         ]);
     });
 

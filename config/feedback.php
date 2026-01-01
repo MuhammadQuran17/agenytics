@@ -11,6 +11,6 @@ return [
     |
     */
 
-    'admin_emails' => env('FEEDBACK_ADMIN_EMAILS', ''),
+    'admin_emails' => env('ADMIN_EMAILS', 'admin@example.com'),
     'feedbacks_per_page' => env('FEEDBACKS_PER_PAGE', 30),
 ];

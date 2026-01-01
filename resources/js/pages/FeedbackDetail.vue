@@ -179,7 +179,7 @@ const updateStatus = async (newStatus: string) => {
               </div>
 
               <h1 class="text-2xl font-bold mb-3">{{ feedback.title }}</h1>
-              <p class="text-muted-foreground mb-4">{{ feedback.description }}</p>
+              <p class="text-muted-foreground mb-4 whitespace-pre-line">{{ feedback.description }}</p>
 
               <!-- Status Management -->
               <div v-if="canManageFeedback" class="mb-4">

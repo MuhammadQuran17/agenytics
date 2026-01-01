@@ -13,8 +13,6 @@ class N8nAiAgent implements AiAgentInterface
         if (config('ai_responses.is_fake_response_enabled')) {
             $this->fakeResponse('success');
         }
-        
-        logger()->debug('request', $request->toArray());
 
         $response = Http::timeout(300)
             ->withBasicAuth(
@@ -26,8 +24,6 @@ class N8nAiAgent implements AiAgentInterface
                 'threadId' => $threadId,
                 'chatInput' => $request->message,
             ]);
-
-        logger()->debug('mm', $response->json());
 
         return $response->json();
     }
