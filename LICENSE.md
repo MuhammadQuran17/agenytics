@@ -47,8 +47,9 @@ Unless You obtain an express, written license from the Licensor, You may **not**
 
 **Examples of prohibited behavior (non-exhaustive):**
 
-* Uploading the repository to a public GitHub repo, public file share, or cloning and distributing to others.
-* Selling a “developer kit” that contains the original Starter Kit source files or minorly modified versions of it.
-* Packaging the Starter Kit as a template on theme marketplaces or code marketplaces.
-
+* Uploading the repository to a public GitHub repo, public file share, or cloning and distributing to others, **unless it qualifies as a Substantially Enhanced Product** as defined in this Agreement.
+* Selling a “developer kit” that contains the original Starter Kit source files or minorly modified versions of it, **unless it qualifies as a Substantially Enhanced Product** as defined in this Agreement.
+* Packaging the Starter Kit as a template on theme marketplaces or code marketplaces, **unless it qualifies as a Substantially Enhanced Product** as defined in this Agreement.
 ---
+
+The product qualifies as a Substantially Enhanced Product, meaning it contains at least thirty percent (30%) independently developed, original features, functionality, or code not present in the original Software. Minor modifications, refactoring, renaming, reformatting, stylistic changes, configuration changes, or superficial feature additions do **not** qualify toward the thirty percent (30%) enhancement threshold.
