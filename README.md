@@ -1,7 +1,7 @@
-# <div style="text-align: center"> AI Agents Starter Kit <div/>
+# <div align="center"> AI Agents Starter Kit <div/>
 
 
-<p style="text-align: center">~~~~~~~~~ Made with ❤️  ~~~~~~~~~</p>
+<p align="center">~~~~~~~~~ Made with ❤️  ~~~~~~~~~</p>
 
 ---
 
