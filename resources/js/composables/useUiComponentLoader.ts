@@ -1,0 +1,55 @@
+import { defineAsyncComponent, type Component } from 'vue';
+import { camelCase, upperFirst } from 'lodash-es';
+
+/**
+ * UI Component Strategy Pattern
+ * Dynamically loads components based on ui_type from the AI response
+ * Uses automatic naming convention: snake_case ui_type -> PascalCase component name
+ */
+
+// Special case mappings for ui_types that don't follow naming convention
+const specialCaseMappings: Record<string, string> = {
+    // fill if needed
+};
+
+/**
+ * Converts ui_type to component name using lodash
+ * Example: 'line_chart' -> 'LineChart', 'database-schema' -> 'DatabaseSchema'
+ */
+const convertUiTypeToComponentName = (uiType: string): string => {
+    // Check special case mappings first
+    if (specialCaseMappings[uiType]) {
+        return specialCaseMappings[uiType];
+    }
+
+    // Convert snake_case/kebab-case to camelCase, then to PascalCase
+    return upperFirst(camelCase(uiType));
+};
+
+/**
+ * Strategy function to load the appropriate component based on ui_type
+ */
+export const useUiComponentLoader = () => {
+    const loadComponent = (uiType: string): Component | null => {
+        if (!uiType) {
+            console.warn('ui_type is required');
+            return null;
+        }
+
+        const componentName = convertUiTypeToComponentName(uiType);
+
+        try {
+            // Dynamically import the component using Vite's glob import
+            return defineAsyncComponent(() => 
+                import(`@/components_project/chat/ui_types/${componentName}.vue`)
+            );
+        } catch (error) {
+            console.error(`Failed to load component: ${componentName} (ui_type: ${uiType})`, error);
+            return null;
+        }
+    };
+
+    return {
+        loadComponent,
+    };
+};

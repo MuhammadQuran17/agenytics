@@ -34,7 +34,7 @@ class N8nAiAgent implements AiAgentInterface
     private function fakeResponse(?string $type = 'success'): \Illuminate\Http\Client\Factory
     {
         return Http::fake([
-            config('services.n8n.url') => Http::response(config("ai_responses.fake_responses.$type")),
+            config('services.n8n.url') => Http::response(json_encode(config("ai_responses.fake_responses.$type")), 200, ['Content-Type' => 'application/json']),
         ]);
     }
 }

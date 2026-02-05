@@ -11,7 +11,7 @@
         "Ref": {
             "type": "http",
             "url": "https://api.ref.tools/mcp?apiKey=ref-3f35e5fd795d8b8de436",
-            "headers": {}
+            "headers": []
         },
         "deepwiki": {
             "url": "https://mcp.deepwiki.com/sse"

@@ -1,3 +1,6 @@
+import 'highlight.js/styles/github-dark.css';
+import 'simple-code-editor/themes/themes-base16.css';
+import 'simple-code-editor/themes/themes.css';
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';

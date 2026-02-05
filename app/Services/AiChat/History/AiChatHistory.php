@@ -26,6 +26,7 @@ class AiChatHistory
             'job_status' => 'completed',
             'role' => 'assistant',
             'message' => Arr::get($response, 'output'),
+            'error' => Arr::get($response, 'error'),
         ]);
     }
 }

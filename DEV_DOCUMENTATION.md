@@ -2,7 +2,7 @@
 
 ## IMPORTANT
 
-- If you will move queue processor from db to redis, make sure that UserJobLimiter is also fixed 
+- If you will move queue processor from db to redis, make sure that UserJobLimiter is also fixed, because it uses db to check if user has too many jobs in queue.
 
 ## Frontend
 
@@ -27,16 +27,3 @@
 ## Feedbacks
 
 1. feedback is the same FeatureRequest. The same entity
-
-### Coolify deployment
-
-1. Select N8n+PostgreSQL+Worker in Coolify Services. You can change TZ in environment varaibles. Default currently is Europe/Berlin. Press Deploy 
-2. Select PgSql in Coolify Services.
-3. Go to Servers, Select your Server, go to Destinations in sidebar, and click Scan For Destinations. You should see that new network is available, click to add. It is the network of N8N + Worker + Postgres + Redis
-3. https://coolify.io/docs/knowledge-base/docker/compose#connect-to-predefined-networks so go to https://coolify.io/docs/knowledge-base/docker/compose#connect-to-predefined-networks
-3. Go to the Terminal of your Server in Coolify. Because our containers are running we should add container to network with : 
-`docker network connect my-custom-network my-running-container` 
-4. Check the permission of Laravel folder. If it is root then chown to www-data
-5. Enable Healthcheck in Laravel app. Just change Path to /up. Other thing are good by default. Save and Enable Healthcheck. If you will get problems in future the debugging steps are clear in Coolify docs: https://coolify.io/docs/troubleshoot/applications/no-available-server . Healthcheck docs: https://coolify.io/docs/knowledge-base/health-checks
-6. In post-deployment commands in Laravel app paste this:
-`php artisan optimize:clear && php artisan optimize && chown -R www-data:www-data *` But Please ehceck by yourself always is folders was changed to www-data, because sometimes you should do it manually. Check what permission is for laravel.log

@@ -17,7 +17,15 @@ class ChatHistory extends Model
         'user_input',
         'role',
         'message',
+        'error',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'message' => 'json',
+        ];
+    }
 
     public function userChat(): BelongsTo
     {

@@ -8,7 +8,7 @@ export interface UserChat {
 
 export interface Message {
     // Object for response, string for user input
-    content: Object | string;
+    content: object | string;
     role: 'user' | 'assistant';
     created_at: string;
 }

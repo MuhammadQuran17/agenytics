@@ -17,7 +17,7 @@ const page = usePage<SharedData>();
 
 // [START] Chats
 
-let mainNavItems: NavItem[] = [];
+const mainNavItems: NavItem[] = [];
 
 if(page.props.userChats.length > 0) {
     for(const chat of page.props.userChats) {
@@ -46,7 +46,7 @@ if(page.props.userChats.length > 0) {
 // [END] Chats
 
 
-let footerNavItems: NavItem[] = [];
+const footerNavItems: NavItem[] = [];
 
 
 footerNavItems.push({

@@ -11,6 +11,14 @@ import { router } from '@inertiajs/vue3';
 import { marked } from 'marked';
 import { useChatPolling } from '@/composables/useChatPolling';
 import { useScrollToMessage } from '@/composables/useScrollToMessage';
+import UiBlockWrapper from '@/components_project/chat/UiBlockWrapper.vue';
+
+interface UiBlock {
+    ui_type: string;
+    title: string;
+    description: string;
+    data: any;
+}
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
@@ -69,12 +77,51 @@ const { startPolling } = useChatPolling({
     messages,
 });
 // [END] Polling state - session-aware
+
+// [START] Parse UI Blocks from AI response
+/**
+ * Check if the message content is a JSON array of UI blocks
+ */
+const parseUiBlocks = (content: string | any): UiBlock[] | null => {
+    if (!content) {
+        return null;
+    }
+
+    try {
+        // If content is already an object/array, use it directly
+        if (typeof content === 'object') {
+            return Array.isArray(content) ? content : null;
+        }
+
+        // Try to parse as JSON string
+        const trimmed = content.trim();
+        if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+            const parsed = JSON.parse(trimmed);
+            if (Array.isArray(parsed) && parsed.every(item => item.ui_type)) {
+                return parsed;
+            }
+        }
+    } catch (error) {
+        // Not a valid JSON, return null to fall back to markdown
+        return null;
+    }
+
+    return null;
+};
+
+/**
+ * Determine if a message contains UI blocks
+ */
+const isUiBlockMessage = (message: any): boolean => {
+    return parseUiBlocks(message.content) !== null;
+};
+// [END] Parse UI Blocks from AI response
 </script>
 
 <template>
     <div class="flex h-full flex-col relative">
         <div ref="chatContainer" class="flex-1 overflow-y-auto py-8 px-4 md:px-0">
-            <div class="max-w-3xl mx-auto">
+            <div class="max-w-4xl mx-auto">
                 <div v-if="!hasActiveChatHistory" class="text-center mb-16">
                     <h1 class="text-3xl font-medium text-foreground mb-4">Hello {{ user.name }}!</h1>
                     <p class="text-xl text-muted-foreground">What we should do today?</p>
@@ -82,12 +129,30 @@ const { startPolling } = useChatPolling({
 
                 <template v-else>
                     <template v-for="(message, index) in messages" :key="index">
+                        <!-- Assistant messages -->
                         <div 
                             v-if="message.role === 'assistant'" 
-                            class="mb-16 max-w-[90%] markdown-content"
+                            class="mb-16 max-w-full"
                             :ref="(el: any) => { if (el) messageRefs[index] = el as HTMLElement }"
-                            v-html="message.content && marked.parse(message.content as string)"
-                        ></div>
+                        >
+                            <!-- UI Blocks Strategy Pattern -->
+                            <div v-if="isUiBlockMessage(message)" class="ui-blocks-container">
+                                <UiBlockWrapper 
+                                    v-for="(block, blockIndex) in parseUiBlocks(message.content)" 
+                                    :key="blockIndex"
+                                    :block="block"
+                                />
+                            </div>
+
+                            <!-- Fallback to Markdown rendering -->
+                            <div 
+                                v-else
+                                class="markdown-content"
+                                v-html="message.content && marked.parse(message.content as string)"
+                            ></div>
+                        </div>
+
+                        <!-- User messages -->
                         <div 
                             v-else 
                             class="w-full"
