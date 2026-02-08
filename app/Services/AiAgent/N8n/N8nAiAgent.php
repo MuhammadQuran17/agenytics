@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class N8nAiAgent implements AiAgentInterface
 {
-    public function sendMessage(AiAgentSendMessageRequest $request, ?string $threadId): array
+    public function sendMessage(AiAgentSendMessageRequest $request): array
     {
         if (config('ai_responses.is_fake_response_enabled')) {
             $this->fakeResponse('success');
@@ -21,7 +21,6 @@ class N8nAiAgent implements AiAgentInterface
             )
             ->post(config('services.n8n.url'), [
                 'sessionId' => $request->sessionId,
-                'threadId' => $threadId,
                 'chatInput' => $request->message,
             ]);
 

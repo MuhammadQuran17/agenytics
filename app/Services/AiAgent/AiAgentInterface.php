@@ -6,5 +6,5 @@ use App\Http\Requests\Api\AiAgent\AiAgentSendMessageRequest;
 
 interface AiAgentInterface
 {
-    public function sendMessage(AiAgentSendMessageRequest $request, ?string $threadId): array;
+    public function sendMessage(AiAgentSendMessageRequest $request): array;
 }

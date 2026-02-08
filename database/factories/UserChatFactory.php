@@ -18,7 +18,6 @@ class UserChatFactory extends Factory
     {
         return [
             'user_id' => \App\Models\User::factory(),
-            'thread_id' => null,
         ];
     }
 }

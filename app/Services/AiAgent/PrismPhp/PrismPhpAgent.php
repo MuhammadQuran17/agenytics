@@ -10,7 +10,7 @@ use App\Services\AiAgent\AiAgentInterface;
  */
 class PrismPhpAgent implements AiAgentInterface
 {
-    public function sendMessage(AiAgentSendMessageRequest $request, ?string $threadId): array
+    public function sendMessage(AiAgentSendMessageRequest $request): array
     {
         throw new \Exception('Not implemented yet');
     }

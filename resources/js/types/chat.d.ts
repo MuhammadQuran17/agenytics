@@ -2,7 +2,6 @@
 export interface UserChat {
   id: number;
   session_id: string;
-  thread_id?: string;
   created_at: string;
 }
 

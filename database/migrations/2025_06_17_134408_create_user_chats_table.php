@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('user_chats', function (Blueprint $table) {
             $table->uuid('session_id')->primary();
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
-            $table->string('thread_id')->nullable();
             $table->timestamps();
         });
     }

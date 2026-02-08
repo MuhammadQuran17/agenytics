@@ -63,7 +63,7 @@ class HandleInertiaRequests extends Middleware
                 $request->user()->subscribedToProduct(config('subscription-plans.plans.own_api_key.stripe_product_id'))
                 : false,
             'userChats' => $request->user() ?
-                $request->user()->chats()->orderBy('created_at', 'desc')->get(['session_id', 'thread_id', 'created_at'])
+                $request->user()->chats()->orderBy('created_at', 'desc')->get(['session_id', 'created_at'])
                 : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

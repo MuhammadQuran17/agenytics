@@ -16,8 +16,6 @@ class UserChat extends Model
 
     protected $fillable = [
         'user_id',
-        'thread_id',
-        'database_type',
     ];
 
     public function user(): BelongsTo

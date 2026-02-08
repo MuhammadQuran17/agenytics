@@ -31,7 +31,6 @@ describe('SendMessageToAiController - NoFreePromptsAndNoSubscription', function 
 
         $mockResponse = [
             'response' => 'Test response',
-            'threadId' => 'thread-123',
         ];
 
         mockMessageProcessorToReturn($mockResponse);
@@ -50,7 +49,6 @@ describe('SendMessageToAiController - NoFreePromptsAndNoSubscription', function 
 
         $mockResponse = [
             'response' => 'Test response',
-            'threadId' => 'thread-123',
         ];
 
         $this->instance(
@@ -119,7 +117,6 @@ describe('SendMessageToAiController - Integration', function () {
 
         $mockResponse = [
             'response' => 'Test response',
-            'threadId' => 'thread-123',
         ];
 
         mockMessageProcessorToReturn($mockResponse);
