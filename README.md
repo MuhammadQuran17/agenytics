@@ -1,6 +1,5 @@
-# ![Alt text for the image](/public/images/agenytics.png)
 
-<!-- <img src="public/images/agenytics3.png" align="center" width="300"> -->
+<div align="center"><img src="public/images/agenytics.png" align="center" width="300"></div>
 
 
 ## <div align="center"> AI Agents Chat Starter Kit <div/>
@@ -13,7 +12,7 @@
 
 For more information, visit our website: [agenytics.com](https://agenytics.com)
 
-The Agenytics Starter Kit is a production-ready foundation for building AI agent chat applications. It was built using Laravel, Inertia, Vue. It allows you to create both text-based chats and analytics-focused agent chats with ready-to-use UI components, including charts (powered by the [Apache ECharts library](https://echarts.apache.org/en/index.html)), tables, [Mermaid flow diagrams](https://mermaid.js.org/), code blocks, and more.
+The Agenytics Starter Kit is a production-ready foundation for building AI agent chat applications. It was built using Laravel, Inertia, and Vue. It allows you to create both text-based chats and analytics-focused agent chats with ready-to-use UI components, including charts (powered by the [Apache ECharts library](https://echarts.apache.org/en/index.html)), tables, [Mermaid flow diagrams](https://mermaid.js.org/), code blocks, and more.
 
 By default, the starter kit uses **n8n** as the agent builder. However, you are not limited to it—you can integrate any other agent builder. You can extend AiAgentInterface. The platform communicates with agent builders via ***REST API***, so as long as the agent responds in the predefined format, all features will work seamlessly. 
 
