@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "MuhammadQuran17/agenytics",
+    "name": "muhammad-quran17/agenytics",
     "type": "project",
     "description": "AI Agent Chat Starter kit (powered by Apache ECharts, tables, Mermaid flow diagrams, code blocks)",
     "keywords": [
