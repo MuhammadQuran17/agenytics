@@ -34,6 +34,7 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="IS_FAKE_RESPONSES_ENABLED" value="true"/>
-        <env name="STRIPE_SECRET" value="sk_test_51RQXcaE8U13QCN3YrjoDEJ4TYArGeToOoaJWMasGLwm6PfKjGjXXEtmBWMRipuxhpkkpcuCHXDIMzDsIn28YeVo600qA8EXg8X"/>
+        <env name="SENTRY_LARAVEL_DSN" value=""/>
+        <env name="STRIPE_SECRET" value="sk_test"/>
     </php>
 </phpunit>
