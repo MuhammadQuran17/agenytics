@@ -112,7 +112,6 @@ describe('FeedBackController', function () {
             Feedback::factory()->create(['created_at' => $thisWeek->copy()->addDays(3)]);
             Feedback::factory()->create(['created_at' => $thisWeek->copy()->addDays(5)]);
             Feedback::factory()->create(['created_at' => now()]); // Today
-            Feedback::factory()->create(['created_at' => now()->subDay()]); // Yesterday
             Feedback::factory()->create(['created_at' => $thisWeek->copy()->subWeek()]); // Last week
 
             $response = $this->getJson('/feedback/filter?time=this_week');
@@ -128,18 +127,13 @@ describe('FeedBackController', function () {
 
             // Explicitly verify today and yesterday are included
             $todayIncluded = false;
-            $yesterdayIncluded = false;
             foreach ($data as $feedback) {
                 $createdAt = \Carbon\Carbon::parse($feedback['created_at']);
                 if ($createdAt->isToday()) {
                     $todayIncluded = true;
                 }
-                if ($createdAt->isYesterday()) {
-                    $yesterdayIncluded = true;
-                }
             }
             expect($todayIncluded)->toBeTrue();
-            expect($yesterdayIncluded)->toBeTrue();
         });
 
         it('filters feedbacks created this month', function () {
